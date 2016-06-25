@@ -1,0 +1,150 @@
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ns="http://dom.gosuslugi.ru/schema/integration/{{.HuisVer}}/" xmlns:hous="http://dom.gosuslugi.ru/schema/integration/{{.HuisVer}}/house-management/" xmlns:xd="http://www.w3.org/2000/09/xmldsig#">
+<!--
+           ВНИМАНИЕ
+обновлять и создавать данные по квартирам можно только если обновляются или создаются 
+данные по подъезду в котором обновляем квартиры!
+
+
+
+
+
+
+
+
+
+
+
+-->
+
+
+   <soapenv:Header>
+      <ns:RequestHeader>
+         <ns:Date>{{CurDateTime1}}</ns:Date>
+         <ns:MessageGUID>{{RandomGUID}}</ns:MessageGUID>
+         <!-- запрос по УК  {{index .Data "uk"}}  -->
+         <ns:SenderID>{{index .Data "SenderID"}}</ns:SenderID>
+         <ns:IsOperatorSighnature>true</ns:IsOperatorSighnature>
+      </ns:RequestHeader>
+   </soapenv:Header>
+   <soapenv:Body>
+      <hous:importHouseUORequest>
+         
+         <!--You have a CHOICE of the next 2 items at this level-->
+         <hous:ApartmentHouse>
+            <hous:ApartmentHouseToUpdate>
+               <hous:BasicCharacteristicts>
+                  <!--You have a CHOICE of the next 2 items at this level-->
+                  <hous:CadastralNumber>?</hous:CadastralNumber>
+                  <hous:No_RSO_GKN_EGRP_Registered>true</hous:No_RSO_GKN_EGRP_Registered>
+                  <hous:FIASHouseGuid>{{index .Data "FIASHouseGuid_mira1"}}</hous:FIASHouseGuid>
+                  <!--Optional:-->
+                  <hous:TotalSquare>499.13</hous:TotalSquare>
+                  <!--Optional:-->
+                  <hous:State>
+                     <ns:Code>?</ns:Code>
+                     <ns:GUID>?</ns:GUID>
+                     <!--Optional:-->
+                     <ns:Name>?</ns:Name>
+                  </hous:State>
+                  <!--Optional:-->
+                  <hous:UsedYear>?</hous:UsedYear>
+                  <!--Optional:-->
+                  <hous:FloorCount>?</hous:FloorCount>
+                  <!--Optional:-->
+                  <hous:OKTMO>
+                     <ns:code>?</ns:code>
+                     <!--Optional:-->
+                     <ns:name>?</ns:name>
+                  </hous:OKTMO>
+                  <!--Optional:-->
+                  <hous:OlsonTZ>
+                     <ns:Code>?</ns:Code>
+                     <ns:GUID>?</ns:GUID>
+                     <!--Optional:-->
+                     <ns:Name>?</ns:Name>
+                  </hous:OlsonTZ>
+                  <!--Optional:-->
+                  <hous:ResidentialSquare>?</hous:ResidentialSquare>
+                  <!--Optional:-->
+                  <hous:CulturalHeritage>?</hous:CulturalHeritage>
+               </hous:BasicCharacteristicts>
+               <!--Optional:-->
+               <hous:UndergroundFloorCount>?</hous:UndergroundFloorCount>
+               <!--Optional:-->
+               <hous:MinFloorCount>?</hous:MinFloorCount>
+               <!--Optional:-->
+               <hous:OverhaulFormingKind>
+                  <ns:Code>?</ns:Code>
+                  <ns:GUID>?</ns:GUID>
+                  <!--Optional:-->
+                  <ns:Name>?</ns:Name>
+               </hous:OverhaulFormingKind>
+               <ns:TransportGUID>?</ns:TransportGUID>
+            </hous:ApartmentHouseToUpdate>
+
+            <!--Zero or more repetitions:-->
+            <hous:EntranceToCreate>
+               <hous:EntranceNum>?</hous:EntranceNum>
+               <hous:StoreysCount>?</hous:StoreysCount>
+               <hous:CreationDate>?</hous:CreationDate>
+               <ns:TransportGUID>?</ns:TransportGUID>
+            </hous:EntranceToCreate>
+            <!--Zero or more repetitions:-->
+            <hous:EntranceToUpdate>
+               <hous:EntranceNum>?</hous:EntranceNum>
+               <!--Optional:-->
+               <hous:StoreysCount>?</hous:StoreysCount>
+               <!--Optional:-->
+               <hous:CreationDate>?</hous:CreationDate>
+               <!--Optional:-->
+               <hous:TerminationDate>?</hous:TerminationDate>
+               <ns:TransportGUID>?</ns:TransportGUID>
+               <hous:EntranceGUID>?</hous:EntranceGUID>
+            </hous:EntranceToUpdate>
+            <!--Zero or more repetitions:-->
+            <hous:ResidentialPremises>
+               <!--You have a CHOICE of the next 2 items at this level-->
+               <hous:ResidentialPremisesToCreate>
+                  <!--You have a CHOICE of the next 2 items at this level-->
+                  <hous:CadastralNumber>?</hous:CadastralNumber>
+                  <hous:No_RSO_GKN_EGRP_Registered>true</hous:No_RSO_GKN_EGRP_Registered>
+                  <hous:PremisesNum>?</hous:PremisesNum>
+                  <hous:EntranceNum>?</hous:EntranceNum>
+                  <hous:PremisesCharacteristic>
+                     <ns:Code>?</ns:Code>
+                     <ns:GUID>?</ns:GUID>
+                     <!--Optional:-->
+                     <ns:Name>?</ns:Name>
+                  </hous:PremisesCharacteristic>
+                  <hous:TotalArea>?</hous:TotalArea>
+                  <hous:GrossArea>?</hous:GrossArea>
+                  <ns:TransportGUID>?</ns:TransportGUID>
+               </hous:ResidentialPremisesToCreate>
+               <hous:ResidentialPremisesToUpdate>
+                  <!--You have a CHOICE of the next 2 items at this level-->
+                  <hous:CadastralNumber>?</hous:CadastralNumber>
+                  <hous:No_RSO_GKN_EGRP_Registered>true</hous:No_RSO_GKN_EGRP_Registered>
+                  <!--Optional:-->
+                  <hous:PremisesNum>?</hous:PremisesNum>
+                  <!--Optional:-->
+                  <hous:TerminationDate>?</hous:TerminationDate>
+                  <hous:EntranceNum>?</hous:EntranceNum>
+                  <!--Optional:-->
+                  <hous:PremisesCharacteristic>
+                     <ns:Code>?</ns:Code>
+                     <ns:GUID>?</ns:GUID>
+                     <!--Optional:-->
+                     <ns:Name>?</ns:Name>
+                  </hous:PremisesCharacteristic>
+                  <!--Optional:-->
+                  <hous:TotalArea>?</hous:TotalArea>
+                  <!--Optional:-->
+                  <hous:GrossArea>?</hous:GrossArea>
+                  <ns:TransportGUID>?</ns:TransportGUID>
+                  <hous:PremisesGUID>?</hous:PremisesGUID>
+               </hous:ResidentialPremisesToUpdate>
+            </hous:ResidentialPremises>
+         </hous:ApartmentHouse>
+      </hous:importHouseUORequest>
+   </soapenv:Body>
+</soapenv:Envelope>

@@ -1,0 +1,10 @@
+"url": "{{index .Data "host"}}{{index .Data "url"}}",
+"headers": {
+	"SOAPAction":"\"urn:importHouseData\"",
+	"Content-Type": "text/xml;charset=UTF-8"
+},
+"type": "xml",
+"basicAuth":{
+	"user":"lanit",
+	"pass":"0rLju9WtE5dkFm9lShTMO7Z5N"
+}

@@ -1,0 +1,59 @@
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ns="http://dom.gosuslugi.ru/schema/integration/{{.HuisVer}}/" xmlns:hous="http://dom.gosuslugi.ru/schema/integration/{{.HuisVer}}/house-management/" xmlns:xd="http://www.w3.org/2000/09/xmldsig#">
+   <soapenv:Header>
+      <ns:RequestHeader>
+         <ns:Date>{{CurDateTime1}}</ns:Date>
+         <ns:MessageGUID>{{RandomGUID}}</ns:MessageGUID>
+         <!-- запрос по УК  {{index .Data "uk"}}  -->
+         <ns:SenderID>{{index .Data "SenderID"}}</ns:SenderID>
+         <ns:IsOperatorSighnature>true</ns:IsOperatorSighnature>
+      </ns:RequestHeader>
+   </soapenv:Header>
+   <soapenv:Body>
+      <hous:importHouseRSORequest>
+         
+         <!--You have a CHOICE of the next 2 items at this level-->
+         <hous:ApartmentHouse>
+            <hous:ApartmentHouseToUpdate>
+               <hous:BasicCharacteristicts>
+                  <hous:No_RSO_GKN_EGRP_Registered>true</hous:No_RSO_GKN_EGRP_Registered>
+                  <hous:FIASHouseGuid>{{index .Data "FIASHouseGuid_mira1"}}</hous:FIASHouseGuid>
+
+
+               </hous:BasicCharacteristicts>
+
+
+               <ns:TransportGUID>{{RandomGUID}}</ns:TransportGUID>
+            </hous:ApartmentHouseToUpdate>
+
+            <!--
+            <hous:EntranceToUpdate>
+               <hous:EntranceNum>2</hous:EntranceNum>
+               <hous:StoreysCount>10</hous:StoreysCount>
+               <hous:CreationDate>2016-04-01</hous:CreationDate>
+               <ns:TransportGUID>{{RandomGUID}}</ns:TransportGUID>
+               <hous:EntranceGUID>{{RandomGUID}}</hous:EntranceGUID>
+            </hous:EntranceToUpdate>  
+            -->
+
+             <hous:EntranceToCreate>
+               <hous:EntranceNum>25</hous:EntranceNum>
+               <ns:TransportGUID>{{RandomGUID}}</ns:TransportGUID>
+            </hous:EntranceToCreate>
+
+             <hous:ResidentialPremises>
+               <hous:ResidentialPremisesToCreate>
+<hous:No_RSO_GKN_EGRP_Registered>true</hous:No_RSO_GKN_EGRP_Registered>
+                  <hous:PremisesNum>11</hous:PremisesNum>
+                  <hous:EntranceNum>25</hous:EntranceNum>
+                  <hous:PremisesCharacteristic>
+                    <ns:Code>1</ns:Code>
+                    <ns:GUID>96a1ce61-b402-46c4-ac6e-34b8670480af</ns:GUID>
+                  </hous:PremisesCharacteristic>
+                  <ns:TransportGUID>{{RandomGUID}}</ns:TransportGUID>
+               </hous:ResidentialPremisesToCreate>
+            </hous:ResidentialPremises>
+
+         </hous:ApartmentHouse>
+      </hous:importHouseRSORequest>
+   </soapenv:Body>
+</soapenv:Envelope>

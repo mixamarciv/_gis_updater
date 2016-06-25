@@ -1,0 +1,14 @@
+"url": "{{index .Data "host"}}{{index .Data "url"}}",
+"headers": {
+	"SOAPAction":"\"urn:exportHouseData\"",
+	"Content-Type": "text/xml;charset=UTF-8"
+},
+"type": "xml",
+"basicAuth":{
+	"user":"lanit",
+	"pass":"tv,n8!Ya"
+},
+"asyncserv":"{{index .Data "asyncserv"}}",
+"signserv":"{{index .Data "signserv"}}",
+"signname":"{{index .Data "signname"}}",
+"signelem":"hous:exportHouseRequest"

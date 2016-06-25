@@ -1,0 +1,16 @@
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ns="http://dom.gosuslugi.ru/schema/integration/{{.HuisVer}}/" xmlns:hous="http://dom.gosuslugi.ru/schema/integration/{{.HuisVer}}/house-management/" xmlns:xd="http://www.w3.org/2000/09/xmldsig#">
+   <soapenv:Header>
+      <ns:RequestHeader>
+         <ns:Date>{{CurDateTime1}}</ns:Date>
+         <ns:MessageGUID>{{RandomGUID}}</ns:MessageGUID>
+         <!-- запрос по УК  {{index .Data "uk"}}  -->
+         <ns:SenderID>{{index .Data "SenderID"}}</ns:SenderID>
+         <ns:IsOperatorSighnature>true</ns:IsOperatorSighnature>
+      </ns:RequestHeader>
+   </soapenv:Header>
+   <soapenv:Body>
+      <hous:exportHouseRequest>
+          <hous:FIASHouseGuid>{{index .Data "FIASHouseGuid"}}</hous:FIASHouseGuid>
+      </hous:exportHouseRequest>
+   </soapenv:Body>
+</soapenv:Envelope>
