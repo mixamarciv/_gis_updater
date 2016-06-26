@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"encoding/json"
 
 	_ "github.com/nakagami/firebirdsql"
 
@@ -51,15 +52,21 @@ func FromStrToJson(str string) map[string]interface{} {
 	if str[0:1] != "{" {
 		str = "{" + str + "}"
 	}
-	d, err := mf.FromJson([]byte(str))
+	var d map[string]interface{}
+	err := json.Unmarshal([]byte(str), &d)
 	LogPrintErrAndExit("ОШИБКА разбора JSON строки: "+str, err)
 	return d
 }
 
+func FromJsonToStr(v interface{}) string {
+	j, err := json.Marshal(v)
+	LogPrintErrAndExit("ОШИБКА JSON преобразования в строку", err)
+	return string(j)
+}
+
 func LoadOptFromDataFile(file string) map[string]interface{} {
 	LogPrint("загружаем параметры из файла " + file)
-	str, err := mf.FileReadStr(file)
-	LogPrintErrAndExit("ОШИБКА чтения файла: \n"+file+"\n\n", err)
+	str := ReadFileOrExit(file)
 	d := FromStrToJson(str)
 	return d
 }
@@ -68,4 +75,10 @@ func AddOptions(to map[string]interface{}, from interface{}) {
 	for k, val := range from.(map[string]interface{}) {
 		to[k] = val
 	}
+}
+
+func ReadFileOrExit(file string) string {
+	str, err := mf.FileReadStr(file)
+	LogPrintErrAndExit("ОШИБКА чтения файла: \n"+file+"\n\n", err)
+	return str
 }

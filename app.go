@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	mf "github.com/mixamarciv/gofncstd3000"
 
@@ -38,6 +39,15 @@ func main() {
 
 	options := structs.Map(opts)
 
+	//создаем все параметры в нижнем регистре
+	for key, val := range options {
+		lkey := strings.ToLower(key)
+		if key != strings.ToLower(key) {
+			options[lkey] = val
+		}
+	}
+
+	checkOptionsAndExit(options, []string{"Database"})
 	Initdb(options)
 
 	switch opts.Type {

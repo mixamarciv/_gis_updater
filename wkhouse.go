@@ -9,6 +9,7 @@ import (
 	"text/template"
 
 	mf "github.com/mixamarciv/gofncstd3000"
+	"github.com/parnurzeal/gorequest"
 )
 
 func wkHouse(opt map[string]interface{}) {
@@ -54,7 +55,6 @@ func wkHouse_loadhouselist(fcomp, house string) []string {
 
 		LogPrint(fiasguid + "| " + info)
 		ret = append(ret, fiasguid)
-
 	}
 	if found == 0 {
 		LogPrintAndExit("по заданным параметрам дома в базеданных не найдены!")
@@ -68,25 +68,53 @@ func wkHouse_loadhouselist(fcomp, house string) []string {
 // 3 - если есть недостающие данные загружаем их в гис
 // 4 - переходим к пункту 1
 func wkHouse_work(opt map[string]interface{}, house string) {
+	LogPrint("start work with: " + house)
 	opt["FIASHouseGuid"] = house
-	wkHouse_work_1_getcurdata(opt, house)
-	LogPrint(Fmts("%+v", opt))
+	ret := wkHouse_work_1_getcurdata(opt, house)
+	LogPrint(Fmts("%+v", ret))
+	LogPrint("end work with: " + house)
 }
 
 //запрашиваем текущие данные у гиса
 func wkHouse_work_1_getcurdata(opt map[string]interface{}, house string) string /* *xml.Node */ {
+	LogPrint("отправляем запрос текущих данных по дому")
 	xml := wkHouse_render_exportxml(opt, house)
-	LogPrint(Fmts("xml:%+v", xml))
-	return house
+
+	//LogPrint(Fmts("%#v", opt))
+	opt["url"] = opt["cryptohost"].(string) + opt["url"].(string)
+	ret := make(map[string]string)
+	ret["xml"] = xml
+	ret["data"] = FromJsonToStr(opt)
+
+	json_str := FromJsonToStr(ret)
+
+	url := opt["asyncserv"].(string)
+	body := sendRequest(url, string(json_str))
+
+	LogPrint("ответ на запрос текущих данных по дому получен")
+	return body
 }
 
 func wkHouse_render_exportxml(opt map[string]interface{}, house string) string {
 	AddOptions(opt, opt["data_expopt"])
 
 	file := opt["templates_path"].(string) + "/export.xml"
-	file_str, err := mf.FileReadStr(file)
-	LogPrintErrAndExit("ОШИБКА чтения файла: \n"+file+"\n\n", err)
+	file_str := ReadFileOrExit(file)
+	xml := RenderTemplate(opt, file_str, file)
+	return xml
+}
 
+func sendRequest(url, body string) string {
+	req := gorequest.New().Post(url)
+	_, body, errs := req.Send(body).End()
+	if len(errs) > 0 {
+		LogPrint(Fmts("%#v", errs))
+		LogPrintAndExit("request send error: \n url: " + url + "\n\n")
+	}
+	return body
+}
+
+func RenderTemplate(opt map[string]interface{}, template_str string, debuginf string) string {
 	funcMap := template.FuncMap{
 		"RandomGUID":   mf.StrUuid,
 		"CurDateTime1": mf.CurTimeStrRFC3339,
@@ -101,15 +129,14 @@ func wkHouse_render_exportxml(opt map[string]interface{}, house string) string {
 
 	vars := new(UserVars)
 	vars.CurDateTime = mf.CurTimeStr()
-	vars.RandomGUID1 = mf.Uuid()
 	vars.HuisVer = opt["Huisver"].(string)
 	vars.Data = opt
 
-	t1, err := template.New("xml").Funcs(funcMap).Parse(file_str)
-	LogPrintErrAndExit("parse template file error: \n"+file+"\n\n", err)
+	t1, err := template.New("xml").Funcs(funcMap).Parse(template_str)
+	LogPrintErrAndExit("parse template error: \n"+debuginf+"\n\n", err)
 
 	buff1 := new(bytes.Buffer)
 	err = t1.Execute(buff1, vars)
-	LogPrintErrAndExit("render template file error: \n"+file+"\n\n", err)
+	LogPrintErrAndExit("render template error: \n"+debuginf+"\n\n", err)
 	return string(buff1.Bytes())
 }
