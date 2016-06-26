@@ -22,7 +22,7 @@ func Initdb(opt map[string]interface{}) {
 }
 
 //обновляем параметр opt из записи huis_uk.options
-func loadUkData(opt map[string]interface{}, fcomp string) {
+func LoadUkData(fcomp string) map[string]interface{} {
 	LogPrint("выбираем данные по УК(" + fcomp + ")")
 
 	query := `SELECT options FROM huis_uk
@@ -43,10 +43,7 @@ func loadUkData(opt map[string]interface{}, fcomp string) {
 	}
 
 	d := FromStrToJson(options)
-
-	for k, val := range d {
-		opt[k] = val
-	}
+	return d
 }
 
 func FromStrToJson(str string) map[string]interface{} {
@@ -59,6 +56,16 @@ func FromStrToJson(str string) map[string]interface{} {
 	return d
 }
 
-func UpdateOptFromDataFile(opt map[string]interface{}, file string) {
+func LoadOptFromDataFile(file string) map[string]interface{} {
+	LogPrint("загружаем параметры из файла " + file)
+	str, err := mf.FileReadStr(file)
+	LogPrintErrAndExit("ОШИБКА чтения файла: \n"+file+"\n\n", err)
+	d := FromStrToJson(str)
+	return d
+}
 
+func AddOptions(to map[string]interface{}, from interface{}) {
+	for k, val := range from.(map[string]interface{}) {
+		to[k] = val
+	}
 }

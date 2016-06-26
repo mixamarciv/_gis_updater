@@ -26,6 +26,7 @@ func main() {
 		Huisver    string `long:"huisver" description:"ver gis xml files"`
 		Type       string `long:"type" description:"gis xml request type(house)"`
 		Fcomp      string `long:"fcomp" description:"uk num"`
+		Uktype     string `long:"uktype" description:"RSO or UO"`
 		House      string `long:"house" description:"FIAS house GUID"`
 	}
 	_, err := flags.ParseArgs(&opts, os.Args)
@@ -41,7 +42,7 @@ func main() {
 
 	switch opts.Type {
 	case `house`:
-		S0300_house(options)
+		wkHouse(options)
 		return
 	}
 
@@ -52,13 +53,13 @@ func checkOptionsAndExit(options map[string]interface{}, need []string) {
 	var notfound []string = nil
 	var strnotfound string = ""
 	for _, param := range need {
-		if options[param] == nil {
+		if val, ok := options[param]; !ok || val == nil || val == "" {
 			notfound = append(notfound, param)
 			strnotfound = strnotfound + " " + param
 		}
 	}
 	if len(notfound) > 0 {
-		LogPrint("ОШИБКА: не заданы параметры: " + strnotfound)
+		LogPrint("ОШИБКА: не заданы обязательные параметры: " + strnotfound)
 		LogPrint(Fmts("список указанных параметров: %+v", options))
 		os.Exit(1)
 	}

@@ -1,4 +1,4 @@
-"url": "{{index .Data "host"}}{{index .Data "url"}}",
+"url": "/ext-bus-home-management-service/services/HomeManagement",
 "headers": {
 	"SOAPAction":"\"urn:importHouseData\"",
 	"Content-Type": "text/xml;charset=UTF-8"

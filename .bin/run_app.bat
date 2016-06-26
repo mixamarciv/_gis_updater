@@ -20,9 +20,9 @@ go build -o app.exe
 @SET type=house
 @SET fcomp=46
 @SET house=3db255a7-1325-4416-8c31-946aa3b150ef
+@SET uktype=UO
 
-
-@SET opt=--database %database% 
+@SET opt=--database %database% --uktype %uktype%
 @SET opt=%opt% --cryptohost %cryptohost% --asyncserv %asyncserv% --signserv %signserv% 
 @SET opt=%opt% --huisver %huisver% --type %type% --fcomp %fcomp% --house %house%
 

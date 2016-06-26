@@ -1,4 +1,4 @@
-"url": "{{index .Data "host"}}{{index .Data "url"}}",
+"url": "/ext-bus-home-management-service/services/HomeManagement",
 "headers": {
 	"SOAPAction":"\"urn:exportHouseData\"",
 	"Content-Type": "text/xml;charset=UTF-8"
@@ -8,7 +8,4 @@
 	"user":"lanit",
 	"pass":"tv,n8!Ya"
 },
-"asyncserv":"{{index .Data "asyncserv"}}",
-"signserv":"{{index .Data "signserv"}}",
-"signname":"{{index .Data "signname"}}",
 "signelem":"hous:exportHouseRequest"
