@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"encoding/json"
+	"strconv"
 
 	_ "github.com/nakagami/firebirdsql"
 
@@ -49,13 +50,28 @@ func LoadUkData(fcomp string) map[string]interface{} {
 
 func FromStrToJson(str string) map[string]interface{} {
 	str = s.Trim(str, " \t\r\n")
-	if str[0:1] != "{" {
+	if str[0:1] != "{" && str[0:1] != "[" {
 		str = "{" + str + "}"
 	}
-	var d map[string]interface{}
-	err := json.Unmarshal([]byte(str), &d)
-	LogPrintErrAndExit("ОШИБКА разбора JSON строки: "+str, err)
-	return d
+
+	if str[0:1] == "{" {
+		var d map[string]interface{}
+		err := json.Unmarshal([]byte(str), &d)
+		LogPrintErrAndExit("ОШИБКА разбора JSON строки в объект: "+str, err)
+		return d
+	}
+	if str[0:1] == "[" {
+		var d []string
+		err := json.Unmarshal([]byte(str), &d)
+		LogPrintErrAndExit("ОШИБКА разбора JSON строки в массив: "+str, err)
+		d2 := make(map[string]interface{}, 1)
+		for key, val := range d {
+			key_s := strconv.Itoa(key)
+			d2[key_s] = val
+		}
+		return d2
+	}
+	return make(map[string]interface{}, 1)
 }
 
 func FromJsonToStr(v interface{}) string {

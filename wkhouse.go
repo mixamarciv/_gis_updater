@@ -6,8 +6,12 @@ package main
 
 import (
 	"bytes"
+	"fmt"
+	"strings"
 	"text/template"
+	"time"
 
+	xmlx "github.com/jteeuwen/go-pkg-xmlx"
 	mf "github.com/mixamarciv/gofncstd3000"
 	"github.com/parnurzeal/gorequest"
 )
@@ -64,19 +68,27 @@ func wkHouse_loadhouselist(fcomp, house string) []string {
 
 //работаем с отдельным домиком:
 // 1 - запрашиваем у гиса данные на текущий момент
-// 2 - сравниваем с тем что у нас в базе и сохраняем доп информацию
-// 3 - если есть недостающие данные загружаем их в гис
-// 4 - переходим к пункту 1
+// 2 - сравниваем результат с тем что у нас в базе, и сохраняем доп информацию по дому в базу
+// 4 - если есть недостающие данные загружаем их в гис
+// 5 - переходим к пункту 1
 func wkHouse_work(opt map[string]interface{}, house string) {
 	LogPrint("start work with: " + house)
 	opt["FIASHouseGuid"] = house
-	ret := wkHouse_work_1_getcurdata(opt, house)
-	LogPrint(Fmts("%+v", ret))
+
+	node := wkHouse_work_1_getcurdata(opt, house)
+	node = node.SelectNode("*", "exportHouseResult")
+
+	needUpdateData := wkHouse_work_2_getNeedUpdateData(opt, house, node)
+
+	LogPrint(Fmts("== %d ============================================", 2))
+	LogPrint(Fmts("%#v", needUpdateData))
+	LogPrint(Fmts("==/%d ============================================", 2))
+
 	LogPrint("end work with: " + house)
 }
 
 //запрашиваем текущие данные у гиса
-func wkHouse_work_1_getcurdata(opt map[string]interface{}, house string) string /* *xml.Node */ {
+func wkHouse_work_1_getcurdata(opt map[string]interface{}, house string) *xmlx.Node {
 	LogPrint("отправляем запрос текущих данных по дому")
 	xml := wkHouse_render_exportxml(opt, house)
 
@@ -89,10 +101,18 @@ func wkHouse_work_1_getcurdata(opt map[string]interface{}, house string) string 
 	json_str := FromJsonToStr(ret)
 
 	url := opt["asyncserv"].(string)
-	body := sendRequest(url, string(json_str))
+	result := sendRequestAsyncServ(url, string(json_str))
 
-	LogPrint("ответ на запрос текущих данных по дому получен")
-	return body
+	resjson := FromStrToJson(result)
+	resxml := resjson["0"].(string)
+
+	doc := xmlx.New()
+	err := doc.LoadString(resxml, nil)
+	LogPrintErrAndExit("xmlx.LoadString error: \n"+resxml+"\n\n", err)
+	node := doc.SelectNode("*", "Body")
+
+	//LogPrint("ответ на запрос текущих данных по дому получен")
+	return node
 }
 
 func wkHouse_render_exportxml(opt map[string]interface{}, house string) string {
@@ -104,14 +124,64 @@ func wkHouse_render_exportxml(opt map[string]interface{}, house string) string {
 	return xml
 }
 
-func sendRequest(url, body string) string {
+func sendRequestSyncServ(url, body string) string {
+	LogPrint("отправляем sync запрос: " + url)
 	req := gorequest.New().Post(url)
-	_, body, errs := req.Send(body).End()
+	_, bodyresult, errs := req.Send(body).End()
 	if len(errs) > 0 {
 		LogPrint(Fmts("%#v", errs))
 		LogPrintAndExit("request send error: \n url: " + url + "\n\n")
 	}
-	return body
+	return bodyresult
+}
+
+func sendRequestAsyncServ(url, body string) string {
+	LogPrint("отправляем async запрос: " + url)
+	req := gorequest.New().Post(url)
+	_, bodyresult, errs := req.Send(body).End()
+	if len(errs) > 0 {
+		LogPrint(Fmts("%#v", errs))
+		LogPrintAndExit("request send error: \n url: " + url + "\n\n")
+	}
+	fmt.Print(".")
+
+	result := make(chan string)
+	go func() {
+		for i := 1; i <= 1000; i++ {
+			time.Sleep(time.Second * 1)
+			fmt.Print(".")
+
+			req := gorequest.New().Post(url)
+			_, bodyresult, errs := req.Send(body).End()
+			if len(errs) > 0 {
+				LogPrint(Fmts("%#v", errs))
+				LogPrintAndExit("request send error: \n url: " + url + "\n\n")
+			}
+
+			j := FromStrToJson(bodyresult)
+
+			isok := checkIsEndResult(j)
+			if isok > 0 {
+				result <- bodyresult
+				return
+			}
+		}
+		LogPrintAndExit("Async request send error: timeout or bad result")
+		result <- "the end"
+	}()
+
+	bodyresult = <-result
+	fmt.Print("\n")
+	return bodyresult
+}
+
+func checkIsEndResult(j map[string]interface{}) int {
+	xml := j["0"].(string)
+	i := strings.Index(xml, "RequestState>3</")
+	if i > 0 {
+		return 1
+	}
+	return 0
 }
 
 func RenderTemplate(opt map[string]interface{}, template_str string, debuginf string) string {
